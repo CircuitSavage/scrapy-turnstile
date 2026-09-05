@@ -46,6 +46,8 @@ class TurnstileMiddleware:
       PEAK_API_KEY   required, format pk_...
       PEAK_PROXY     optional proxy string passed to Peak
       PEAK_API_URL   optional override of the solve endpoint
+      PEAK_APP_ID    optional app id sent as ``appId`` to earn Peak's
+                     developer revenue share on each solve
       PEAK_TURNSTILE_FIELD    form field name for the token
                               (default "cf-turnstile-response")
       PEAK_TURNSTILE_MAX_RETRIES  max solve attempts per request (default 2)
@@ -60,6 +62,7 @@ class TurnstileMiddleware:
         max_retries: int = 2,
         client: Optional[PeakClient] = None,
         request_cls=None,
+        app_id: Optional[str] = None,
     ) -> None:
         self.token_field = token_field
         self.max_retries = max_retries
@@ -70,6 +73,8 @@ class TurnstileMiddleware:
             kwargs = {"api_key": api_key, "proxy": proxy}
             if api_url:
                 kwargs["api_url"] = api_url
+            if app_id:
+                kwargs["app_id"] = app_id
             self.client = PeakClient(**kwargs)
 
     @classmethod
@@ -91,6 +96,7 @@ class TurnstileMiddleware:
                 "PEAK_TURNSTILE_FIELD", "cf-turnstile-response"
             ),
             max_retries=settings.getint("PEAK_TURNSTILE_MAX_RETRIES", 2),
+            app_id=settings.get("PEAK_APP_ID"),
         )
 
     def _body_text(self, response) -> str:

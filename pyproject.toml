@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scrapy-turnstile"
-version = "0.1.0"
+version = "0.2.0"
 description = "Scrapy downloader middleware that solves Cloudflare Turnstile automatically via the Peak API."
 readme = "README.md"
 requires-python = ">=3.8"

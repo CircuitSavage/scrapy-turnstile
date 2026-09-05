@@ -28,10 +28,15 @@ def build_solve_payload(
     url: str,
     proxy: Optional[str] = None,
     task_type: str = TASK_TURNSTILE,
+    app_id: Optional[str] = None,
 ) -> dict:
     """Build the JSON body for POST https://api.peak.fo/solve.
 
     ``proxy`` is omitted entirely when not provided, per the Peak contract.
+
+    ``app_id`` is optional. When set it is sent as ``appId`` so the owner of
+    that app id earns Peak's developer revenue share on the solve. It never
+    changes the solve result; when unset the payload is unchanged.
     """
     payload = {
         "task_type": task_type,
@@ -40,6 +45,8 @@ def build_solve_payload(
     }
     if proxy:
         payload["proxy"] = proxy
+    if app_id:
+        payload["appId"] = app_id
     return payload
 
 
@@ -52,6 +59,7 @@ class PeakClient:
         api_url: str = DEFAULT_API_URL,
         proxy: Optional[str] = None,
         timeout: float = 180.0,
+        app_id: Optional[str] = None,
     ) -> None:
         if not api_key:
             raise PeakError(
@@ -62,6 +70,7 @@ class PeakClient:
         self.api_url = api_url
         self.proxy = proxy
         self.timeout = timeout
+        self.app_id = app_id
 
     def _post(self, payload: dict) -> dict:
         """Send the payload to Peak and return the parsed JSON response.
@@ -103,7 +112,11 @@ class PeakClient:
         Raises :class:`PeakError` on failure.
         """
         payload = build_solve_payload(
-            sitekey, url, proxy=proxy or self.proxy, task_type=task_type
+            sitekey,
+            url,
+            proxy=proxy or self.proxy,
+            task_type=task_type,
+            app_id=self.app_id,
         )
         result = self._post(payload)
         if not result.get("success"):

@@ -86,8 +86,20 @@ Peak also supports the Cloudflare 5s interstitial via `task_type: "cloudflare5st
 | `PEAK_API_KEY` | (required) | Your Peak key, format `pk_...`. |
 | `PEAK_PROXY` | `None` | Proxy string forwarded to Peak so the solve matches your crawl IP. |
 | `PEAK_API_URL` | `https://api.peak.fo/solve` | Override the solve endpoint. |
+| `PEAK_APP_ID` | `None` | Optional app id sent as `appId` to earn revenue share on each solve. |
 | `PEAK_TURNSTILE_FIELD` | `cf-turnstile-response` | Form field the token is injected into. |
 | `PEAK_TURNSTILE_MAX_RETRIES` | `2` | Max solve attempts per request before giving up. |
+
+## Earn with your app ID
+
+Set `PEAK_APP_ID` in your Scrapy settings to earn 5% of every solve your spider makes, paid as Peak solve credit. It is optional and does not change whether a solve succeeds or how fast it returns.
+
+```python
+# settings.py
+PEAK_APP_ID = "app_your_id"   # optional; earns solve credit on each solve
+```
+
+Create an app id at [peak.fo/dashboard/developer](https://peak.fo/dashboard/developer); details at [peak.fo/earn](https://peak.fo/earn).
 
 ## Legitimate use
 

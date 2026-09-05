@@ -105,6 +105,35 @@ class PayloadTests(unittest.TestCase):
         payload = build_solve_payload(SITEKEY, TARGET_URL, proxy="http://p:1")
         self.assertEqual(payload["proxy"], "http://p:1")
 
+    def test_app_id_absent_by_default(self):
+        payload = build_solve_payload(SITEKEY, TARGET_URL)
+        self.assertNotIn("appId", payload)
+
+    def test_app_id_included_when_set(self):
+        payload = build_solve_payload(SITEKEY, TARGET_URL, app_id="app_123")
+        self.assertEqual(payload["appId"], "app_123")
+
+    def test_client_sends_app_id(self):
+        """PeakClient forwards its app_id into the solved payload as appId."""
+        client = PeakClient(api_key="pk_test", app_id="app_123")
+        with mock.patch.object(
+            PeakClient,
+            "_post",
+            return_value={"success": True, "data": {"token": TEST_TOKEN}},
+        ) as mock_post:
+            client.solve(SITEKEY, TARGET_URL)
+        self.assertEqual(_parse_captured(mock_post)["appId"], "app_123")
+
+    def test_client_omits_app_id_when_unset(self):
+        client = PeakClient(api_key="pk_test")
+        with mock.patch.object(
+            PeakClient,
+            "_post",
+            return_value={"success": True, "data": {"token": TEST_TOKEN}},
+        ) as mock_post:
+            client.solve(SITEKEY, TARGET_URL)
+        self.assertNotIn("appId", _parse_captured(mock_post))
+
 
 class MiddlewareFlowTests(unittest.TestCase):
     def _middleware(self, client):
